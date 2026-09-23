@@ -1,0 +1,15 @@
+{
+  "apps": [
+    {
+      "name": "UN1FY",
+      "path": "ios",
+      "framework": "swift"
+    },
+    {
+      "name": "Backend",
+      "path": "backend",
+      "framework": "supabase"
+    }
+  ],
+  "$schema": "https://rork.com/schema/rork.json"
+}
