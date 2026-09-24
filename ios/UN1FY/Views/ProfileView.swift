@@ -16,6 +16,11 @@ struct ProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 28) {
+                PageIntroduction(
+                    eyebrow: "Your space",
+                    title: store.profile.firstName.isEmpty ? "Your space." : "Hey, \(store.profile.firstName).",
+                    subtitle: "Part of something stronger."
+                )
                 profileHeader
                 pinnedBadges
                 allTimeStats
@@ -24,8 +29,8 @@ struct ProfileView: View {
                 mindbodyConnectionSection
                 mindbodyLink
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .padding(.horizontal, 22)
+            .padding(.top, 16)
             .padding(.bottom, 32)
         }
         .background(Theme.background.ignoresSafeArea())
@@ -84,7 +89,7 @@ struct ProfileView: View {
                     AvatarView(
                         clientId: avatars.ownClientId,
                         initials: profileInitials,
-                        size: 96
+                        size: 64
                     )
                     .overlay {
                         if avatars.isUploading {
@@ -163,7 +168,7 @@ struct ProfileView: View {
                                 .frame(width: 56, height: 56)
                             Image(systemName: badge.icon)
                                 .font(.system(size: 22))
-                                .foregroundStyle(Theme.cardBackground)
+                                .foregroundStyle(Theme.accentInk)
                         }
                         Text(badge.name)
                             .font(.caption2.weight(.medium))

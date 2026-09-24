@@ -128,7 +128,7 @@ struct BadgeCell: View {
                     .frame(width: 64, height: 64)
                 Image(systemName: badge.icon)
                     .font(.system(size: 24))
-                    .foregroundStyle(badge.isUnlocked ? Theme.cardBackground : Theme.creamTertiary)
+                    .foregroundStyle(badge.isUnlocked ? Theme.accentInk : Theme.creamTertiary)
                     .symbolEffect(.bounce, value: bounceValue)
             }
             Text(badge.name)
@@ -159,7 +159,7 @@ struct BadgeDetailSheet: View {
                     .frame(width: 100, height: 100)
                 Image(systemName: badge.icon)
                     .font(.system(size: 40))
-                    .foregroundStyle(badge.isUnlocked ? Theme.cardBackground : Theme.creamTertiary)
+                    .foregroundStyle(badge.isUnlocked ? Theme.accentInk : Theme.creamTertiary)
             }
             .padding(.top, 16)
 

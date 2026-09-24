@@ -108,12 +108,12 @@ struct FeedPostCard: View {
                 HStack(spacing: 6) {
                     Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(isLiked ? Theme.accent : Theme.creamSecondary)
+                        .foregroundStyle(isLiked ? Theme.accentText : Theme.creamSecondary)
                         .symbolEffect(.bounce, value: isLiked)
                     if post.likeCount > 0 {
                         Text("\(post.likeCount)")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(isLiked ? Theme.accent : Theme.creamSecondary)
+                            .foregroundStyle(isLiked ? Theme.accentText : Theme.creamSecondary)
                             .contentTransition(.numericText())
                     }
                 }
