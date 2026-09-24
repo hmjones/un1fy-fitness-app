@@ -35,16 +35,18 @@ struct ContentView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) { HeaderWordmark() }
+                        .un1fyHeaderBackground()
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { selectedTab = .profile } label: {
                             AvatarView(
                                 clientId: AvatarStore.shared.ownClientId,
-                                initials: "\(store.profile.firstName.prefix(1))\(store.profile.lastName.prefix(1))",
+                                initials: profileInitials,
                                 size: 36
                             )
                         }
                         .accessibilityLabel("Your profile")
                     }
+                    .un1fyHeaderBackground()
                 }
                 .toolbarBackground(Theme.background, for: .navigationBar)
                 .toolbarBackground(.visible, for: .navigationBar)
@@ -64,6 +66,22 @@ struct ContentView: View {
         }
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
+    private var profileInitials: String {
+        let initials = "\(store.profile.firstName.prefix(1))\(store.profile.lastName.prefix(1))"
+        return initials.isEmpty ? "U" : initials.uppercased()
+    }
+}
+
+private extension ToolbarContent {
+    @ToolbarContentBuilder
+    func un1fyHeaderBackground() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            self.sharedBackgroundVisibility(.hidden)
+        } else {
+            self
+        }
     }
 }
 
