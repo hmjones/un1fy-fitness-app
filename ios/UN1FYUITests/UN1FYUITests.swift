@@ -39,7 +39,8 @@ final class UN1FYUITests: XCTestCase {
 
         tabs.buttons["Community"].tap()
         XCTAssertTrue(app.staticTexts["Stronger together."].waitForExistence(timeout: 5))
-        let sections = app.segmentedControls["Community section"]
+        let sections = app.segmentedControls["community.sections"]
+        XCTAssertTrue(sections.waitForExistence(timeout: 5))
         sections.buttons["Ranks"].tap()
         XCTAssertTrue(sections.buttons["Ranks"].isSelected)
         sections.buttons["Challenges"].tap()

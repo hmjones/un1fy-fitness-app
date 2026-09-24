@@ -18,6 +18,7 @@ struct CommunityView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityIdentifier("community.sections")
             }
             .padding(.horizontal, 22)
             .padding(.top, 16)
