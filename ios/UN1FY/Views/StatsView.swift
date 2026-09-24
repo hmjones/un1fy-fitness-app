@@ -3,7 +3,6 @@ import SwiftUI
 struct StatsView: View {
     let store: MemberStore
     @State private var appeared: Bool = false
-    @State private var ringProgress: Double = 0
     @State private var commentsPost: FeedPost?
     @State private var sharePost: FeedPost?
 
@@ -12,18 +11,27 @@ struct StatsView: View {
             VStack(spacing: 28) {
                 headerSection
                 if store.isMindbodyConnected {
-                    progressRingSection
-                    monthComparisonCard
-                    heatMapSection
-                    classBreakdownSection
-                    personalRecordsSection
+                    ProgressOverview(store: store)
+                    ProgressBadgesSection(store: store)
+                    DisclosureGroup("More about your progress") {
+                        VStack(spacing: 20) {
+                            monthComparisonCard
+                            heatMapSection
+                            classBreakdownSection
+                            personalRecordsSection
+                        }
+                        .padding(.top, 16)
+                    }
+                    .font(.headline)
+                    .foregroundStyle(Theme.cream)
                     myActivitySection
                 } else {
                     notConnectedCard
+                    ProgressBadgesSection(store: store)
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .padding(.horizontal, 22)
+            .padding(.top, 16)
             .padding(.bottom, 32)
         }
         .background(Theme.background.ignoresSafeArea())
@@ -48,9 +56,6 @@ struct StatsView: View {
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 appeared = true
-            }
-            withAnimation(.easeInOut(duration: 1.2).delay(0.3)) {
-                ringProgress = store.monthlyProgress
             }
         }
     }
@@ -116,13 +121,7 @@ struct StatsView: View {
     }
 
     private var headerSection: some View {
-        HStack {
-            Text("Your Progress")
-                .font(.system(.largeTitle, weight: .bold))
-                .foregroundStyle(Theme.cream)
-            Spacer()
-        }
-        .opacity(appeared ? 1 : 0)
+        PageIntroduction(eyebrow: "Your progress", title: "Showing up adds up.", subtitle: "Every class is another step forward.")
     }
 
     private var notConnectedCard: some View {
@@ -143,37 +142,6 @@ struct StatsView: View {
         .padding(.vertical, 40)
         .padding(.horizontal, 24)
         .softCard()
-        .opacity(appeared ? 1 : 0)
-    }
-
-    private var progressRingSection: some View {
-        VStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .stroke(Theme.neutralFill, lineWidth: 14)
-                Circle()
-                    .trim(from: 0, to: ringProgress)
-                    .stroke(
-                        Theme.accent,
-                        style: StrokeStyle(lineWidth: 14, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                VStack(spacing: 4) {
-                    Text("\(store.profile.classesThisMonth)")
-                        .font(.system(size: 48, weight: .black))
-                        .foregroundStyle(Theme.cream)
-                    Text("of \(store.profile.monthlyGoal) goal")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Theme.creamSecondary)
-                }
-            }
-            .frame(width: 200, height: 200)
-
-            Text("Monthly Class Goal")
-                .font(.headline)
-                .foregroundStyle(Theme.creamSecondary)
-        }
-        .padding(.vertical, 8)
         .opacity(appeared ? 1 : 0)
     }
 
@@ -282,7 +250,7 @@ struct StatsView: View {
                 .foregroundStyle(Theme.featuredText)
 
             HStack(spacing: 12) {
-                RecordCard(icon: "flame.fill", value: "\(store.profile.longestStreak)", label: "Longest Streak", unit: "days", iconColor: Theme.flame)
+                RecordCard(icon: "flame.fill", value: "\(store.profile.longestStreak)", label: "Longest Streak", unit: "days", iconColor: Theme.featuredText)
                 RecordCard(icon: "calendar", value: "\(store.profile.mostClassesInMonth)", label: "Best Month", unit: "classes")
             }
             HStack(spacing: 12) {

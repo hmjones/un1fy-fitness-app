@@ -137,7 +137,7 @@ struct FeedCommentsSheet: View {
                     } else {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.system(size: 30))
-                            .foregroundStyle(canSend ? Theme.accent : Theme.creamTertiary)
+                            .foregroundStyle(canSend ? Theme.accentText : Theme.creamTertiary)
                             .frame(width: 44, height: 44)
                     }
                 }

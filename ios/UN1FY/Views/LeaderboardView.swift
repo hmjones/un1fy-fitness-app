@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LeaderboardView: View {
     let memberStore: MemberStore
+    var showsHeader = true
     @State private var store = LeaderboardStore()
     @State private var appeared: Bool = false
 
@@ -15,7 +16,7 @@ struct LeaderboardView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                headerSection
+                if showsHeader { headerSection }
                 periodPicker
 
                 if store.isLoading && store.currentRows.isEmpty {
@@ -222,7 +223,7 @@ struct LeaderboardView: View {
             if isMe {
                 Text("YOU")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Theme.cardBackground)
+                    .foregroundStyle(Theme.accentInk)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Theme.accent)

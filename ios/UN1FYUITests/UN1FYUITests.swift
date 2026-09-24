@@ -23,12 +23,59 @@ final class UN1FYUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testMainNavigation() throws {
         let app = XCUIApplication()
         app.launch()
+        let tabs = app.tabBars
+        XCTAssertTrue(tabs.buttons["Home"].waitForExistence(timeout: 15))
+        XCTAssertEqual(tabs.buttons.count, 4)
+        tabs.buttons["Progress"].tap()
+        XCTAssertTrue(app.staticTexts["Showing up adds up."].waitForExistence(timeout: 5))
+        let badges = app.buttons["progress.badges"]
+        for _ in 0..<4 where !badges.isHittable { app.swipeUp() }
+        XCTAssertTrue(badges.isHittable)
+        badges.tap()
+        XCTAssertTrue(app.staticTexts["Achievements"].waitForExistence(timeout: 5))
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        tabs.buttons["Community"].tap()
+        XCTAssertTrue(app.staticTexts["Stronger together."].waitForExistence(timeout: 5))
+        let sections = app.segmentedControls["community.sections"]
+        XCTAssertTrue(sections.waitForExistence(timeout: 5))
+        sections.buttons["Ranks"].tap()
+        XCTAssertTrue(sections.buttons["Ranks"].isSelected)
+        sections.buttons["Challenges"].tap()
+        XCTAssertTrue(sections.buttons["Challenges"].isSelected)
+        sections.buttons["Feed"].tap()
+        XCTAssertTrue(sections.buttons["Feed"].isSelected)
+        tabs.buttons["You"].tap()
+        XCTAssertTrue(app.staticTexts["Part of something stronger."].waitForExistence(timeout: 5))
+        tabs.buttons["Home"].tap()
+        let community = app.buttons["home.community"]
+        // The full-feed link remains reachable from the Home preview.
+        for _ in 0..<4 where !community.isHittable { app.swipeUp() }
+        XCTAssertTrue(community.isHittable)
+        community.tap()
+        XCTAssertTrue(tabs.buttons["Community"].isSelected)
+    }
+
+    @MainActor
+    func testAppearanceAndProfileShortcut() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.buttons["Your profile"].waitForExistence(timeout: 15))
+        app.buttons["Your profile"].tap()
+        XCTAssertTrue(app.staticTexts["Part of something stronger."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["You"].isSelected)
+        let light = app.buttons["Light"]
+        for _ in 0..<5 where !light.isHittable { app.swipeUp() }
+        XCTAssertTrue(light.isHittable)
+        for mode in ["Light", "Dark", "System"] {
+            app.buttons[mode].tap()
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "Profile-\(mode)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+        }
     }
 
     @MainActor

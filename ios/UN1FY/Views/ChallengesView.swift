@@ -2,12 +2,13 @@ import SwiftUI
 
 struct ChallengesView: View {
     let store: MemberStore
+    var showsHeader = true
     @State private var appeared: Bool = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 28) {
-                headerSection
+                if showsHeader { headerSection }
 
                 if let active = store.challenges.first(where: { $0.isActive }) {
                     activeChallengeCard(active)
@@ -132,7 +133,7 @@ struct ChallengesView: View {
                     if entry.name == "Sarah M." {
                         Text("YOU")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(Theme.cardBackground)
+                            .foregroundStyle(Theme.accentInk)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Theme.accent)

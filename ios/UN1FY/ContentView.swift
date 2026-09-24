@@ -8,135 +8,93 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Home", image: "TabHome", value: .home) {
-                NavigationStack {
-                    HomeView(store: store)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                HeaderWordmark()
-                            }
-                        }
-                        .toolbarBackground(Theme.background, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
+            Tab("Home", systemImage: "house", value: AppTab.home) {
+                appNavigation {
+                    HomeView(store: store, onOpenCommunity: { selectedTab = .community })
                 }
             }
-
-            Tab("You", image: "TabYou", value: .stats) {
-                NavigationStack {
-                    StatsView(store: store)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                HeaderWordmark()
-                            }
-                        }
-                        .toolbarBackground(Theme.background, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
-                }
+            Tab("Progress", systemImage: "chart.bar", value: AppTab.progress) {
+                appNavigation { StatsView(store: store) }
             }
-
-            Tab("Ranks", image: "TabRanks", value: .leaderboard) {
-                NavigationStack {
-                    LeaderboardView(memberStore: store)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                HeaderWordmark()
-                            }
-                        }
-                        .toolbarBackground(Theme.background, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
-                }
+            Tab("Community", systemImage: "person.2", value: AppTab.community) {
+                appNavigation { CommunityView(store: store) }
             }
-
-            Tab("Badges", image: "TabBadges", value: .achievements) {
-                NavigationStack {
-                    AchievementsView(store: store)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                HeaderWordmark()
-                            }
-                        }
-                        .toolbarBackground(Theme.background, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
-                }
-            }
-
-            Tab("Challenges", image: "TabChallenges", value: .challenges) {
-                NavigationStack {
-                    ChallengesView(store: store)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                HeaderWordmark()
-                            }
-                        }
-                        .toolbarBackground(Theme.background, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
-                }
-            }
-
-            Tab("Profile", image: "TabProfile", value: .profile) {
-                NavigationStack {
-                    ProfileView(store: store, appearanceMode: $appearanceMode)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                HeaderWordmark()
-                            }
-                        }
-                        .toolbarBackground(Theme.background, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
-                }
+            Tab("You", systemImage: "person.crop.circle", value: AppTab.profile) {
+                appNavigation { ProfileView(store: store, appearanceMode: $appearanceMode) }
             }
         }
         .tint(Theme.cream)
-        .onAppear {
-            configureTabBarAppearance()
-        }
-        .onChange(of: colorScheme) { _, _ in
-            configureTabBarAppearance()
-        }
-        .task {
-            await store.refreshData()
+        .onAppear { configureTabBarAppearance() }
+        .onChange(of: colorScheme) { _, _ in configureTabBarAppearance() }
+        .task { await store.refreshData() }
+    }
+
+    private func appNavigation<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        NavigationStack {
+            content()
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) { HeaderWordmark() }
+                        .un1fyHeaderBackground()
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { selectedTab = .profile } label: {
+                            AvatarView(
+                                clientId: AvatarStore.shared.ownClientId,
+                                initials: profileInitials,
+                                size: 36
+                            )
+                        }
+                        .accessibilityLabel("Your profile")
+                    }
+                }
+                .toolbarBackground(Theme.background, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 
     private func configureTabBarAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Theme.background)
+        appearance.backgroundColor = UIColor(Theme.cardBackground)
         appearance.shadowColor = UIColor(Theme.subtleDivider)
-
-        let normalAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor(Theme.creamTertiary)
-        ]
-        let selectedAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor(Theme.cream)
-        ]
-
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Theme.creamTertiary)
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttributes
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Theme.cream)
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
-
+        for layout in [appearance.stackedLayoutAppearance, appearance.inlineLayoutAppearance, appearance.compactInlineLayoutAppearance] {
+            layout.normal.iconColor = UIColor(Theme.creamSecondary)
+            layout.normal.titleTextAttributes = [.foregroundColor: UIColor(Theme.creamSecondary)]
+            layout.selected.iconColor = UIColor(Theme.cream)
+            layout.selected.titleTextAttributes = [.foregroundColor: UIColor(Theme.cream)]
+        }
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
+    private var profileInitials: String {
+        let initials = "\(store.profile.firstName.prefix(1))\(store.profile.lastName.prefix(1))"
+        return initials.isEmpty ? "U" : initials.uppercased()
+    }
+}
+
+private extension ToolbarContent {
+    @ToolbarContentBuilder
+    func un1fyHeaderBackground() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            self.sharedBackgroundVisibility(.hidden)
+        } else {
+            self
+        }
     }
 }
 
 enum AppTab: Hashable {
-    case home, stats, leaderboard, achievements, challenges, profile
+    case home, progress, community, profile
 }
 
 struct HeaderWordmark: View {
     var body: some View {
         Image("UN1FYWordmark")
+            .renderingMode(.template)
             .resizable()
             .scaledToFit()
-            .frame(height: 15)
+            .frame(width: 80, height: 24)
             .foregroundStyle(Theme.cream)
             .accessibilityLabel("UN1FY")
     }

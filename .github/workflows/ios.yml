@@ -1,0 +1,61 @@
+name: iOS validation
+
+on:
+  pull_request:
+    paths: ['ios/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
+      - name: Select an iPhone simulator
+        run: |
+          xcrun simctl list devices available -j > /tmp/devices.json
+          DEVICE_ID=$(python3 -c 'import json; d=json.load(open("/tmp/devices.json")); print(next(x["udid"] for runtime, devices in sorted(d["devices"].items(), reverse=True) if "iOS" in runtime for x in devices if x["name"].startswith("iPhone")))')
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing -project ios/UN1FY.xcodeproj -scheme UN1FY \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+            CODE_SIGNING_ALLOWED=NO | tee xcodebuild.log
+      - name: Test navigation and appearance
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building -project ios/UN1FY.xcodeproj -scheme UN1FY \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+            -parallel-testing-enabled NO \
+            -resultBundlePath TestResults.xcresult \
+            -only-testing:UN1FYUITests/UN1FYUITests/testMainNavigation \
+            -only-testing:UN1FYUITests/UN1FYUITests/testAppearanceAndProfileShortcut \
+            CODE_SIGNING_ALLOWED=NO | tee -a xcodebuild.log
+      - name: Export test diagnostics
+        if: always()
+        run: |
+          if [ -d TestResults.xcresult ]; then
+            xcrun xcresulttool get test-results summary --path TestResults.xcresult > test-summary.json
+            xcrun xcresulttool export attachments --path TestResults.xcresult --output-path screenshots
+          fi
+      - name: Save build log and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-validation
+          path: |
+            xcodebuild.log
+            TestResults.xcresult
+            test-summary.json
+            screenshots
+          retention-days: 7
