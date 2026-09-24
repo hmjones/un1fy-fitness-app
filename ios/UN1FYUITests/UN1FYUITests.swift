@@ -64,6 +64,7 @@ final class UN1FYUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["Your profile"].waitForExistence(timeout: 15))
         app.buttons["Your profile"].tap()
+        XCTAssertTrue(app.staticTexts["Part of something stronger."].waitForExistence(timeout: 5))
         XCTAssertTrue(app.tabBars.buttons["You"].isSelected)
         let light = app.buttons["Light"]
         for _ in 0..<5 where !light.isHittable { app.swipeUp() }

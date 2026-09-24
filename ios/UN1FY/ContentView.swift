@@ -46,7 +46,6 @@ struct ContentView: View {
                         }
                         .accessibilityLabel("Your profile")
                     }
-                    .un1fyHeaderBackground()
                 }
                 .toolbarBackground(Theme.background, for: .navigationBar)
                 .toolbarBackground(.visible, for: .navigationBar)
